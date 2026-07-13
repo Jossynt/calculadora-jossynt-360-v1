@@ -2,8 +2,12 @@ import streamlit as st
 
 st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="centered")
 
+# CSS para reducir el tamaño de los números en los widgets 'metric'
 st.markdown("""
     <style>
+    [data-testid="stMetricValue"] {
+        font-size: 20px !important;
+    }
     .block-container { padding-top: 1rem; padding-bottom: 1rem; }
     </style>
 """, unsafe_allow_html=True)
@@ -21,24 +25,18 @@ descuento = niveles[nivel]
 comision_final = 0.0025 * (1 - descuento)
 
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
-    # Etapa 1: Venta
     monto_bruto = cantidad_usdt * tasa_venta
-    comision_dinero = monto_bruto * comision_final
-    recibes_neto = monto_bruto - comision_dinero
-    
-    # Etapa 2: Recompra
+    recibes_neto = monto_bruto * (1 - comision_final)
     usdt_final = recibes_neto / tasa_compra
     ganancia = usdt_final - cantidad_usdt
 
     st.divider()
     
-    # Sección 1: Venta
     st.subheader("⬇️ Etapa: Venta (USDT a VES)")
     c1, c2 = st.columns(2)
     c1.metric("Monto Bruto", f"{monto_bruto:,.3f} VES")
     c2.metric("Recibes (Neto)", f"{recibes_neto:,.3f} VES")
     
-    # Sección 2: Recompra
     st.subheader("⬆️ Etapa: Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
     c3.metric("Usas para comprar", f"{recibes_neto:,.3f} VES")
