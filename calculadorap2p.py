@@ -1,9 +1,7 @@
 import streamlit as st
 
-# Configuración de página
 st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="centered")
 
-# Estilo para reducir espacios en celular
 st.markdown("""
     <style>
     .block-container { padding-top: 1rem; padding-bottom: 1rem; }
@@ -11,57 +9,48 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("💰 Calculadora P2P")
-st.subheader("Simula tu operación como maker")
 
-# Configuración de tarifas
-tarifa_base = 0.0025  # 0.25% tarifa maker en Venezuela
-niveles = {
-    "Sin verificar": 0.0,
-    "Bronce": 0.20,
-    "Plata": 0.30,
-    "Oro": 0.50
-}
+niveles = {"Sin verif.": 0.0, "Bronce": 0.20, "Plata": 0.30, "Oro": 0.50}
 
-# Inputs con formato a 3 decimales
 nivel = st.radio("Nivel Binance", list(niveles.keys()), horizontal=True)
-cantidad_usdt = st.number_input("Cantidad USDT a vender", min_value=0.0, value=1000.000, format="%.3f")
-tasa_venta = st.number_input("Tasa de venta (fiat x USDT)", min_value=0.0, value=833.000, format="%.3f")
-tasa_compra = st.number_input("Tasa de compra (recompra)", min_value=0.0, value=812.123, format="%.3f")
+cantidad_usdt = st.number_input("Cantidad USDT a vender", value=1000.000, format="%.3f")
+tasa_venta = st.number_input("Tasa Venta (VES x USDT)", value=833.000, format="%.3f")
+tasa_compra = st.number_input("Tasa Recompra (VES x USDT)", value=812.123, format="%.3f")
 
-# Lógica de cálculo
 descuento = niveles[nivel]
-comision_final = tarifa_base * (1 - descuento)
+comision_final = 0.0025 * (1 - descuento)
 
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
+    # Etapa 1: Venta
     monto_bruto = cantidad_usdt * tasa_venta
     comision_dinero = monto_bruto * comision_final
     recibes_neto = monto_bruto - comision_dinero
     
-    usdt_recuperados = recibes_neto / tasa_compra
-    ganancia_neta_usdt = usdt_recuperados - cantidad_usdt
+    # Etapa 2: Recompra
+    usdt_final = recibes_neto / tasa_compra
+    ganancia = usdt_final - cantidad_usdt
 
-    # Interfaz de resultados
     st.divider()
-    st.subheader("📊 Resultado del Ciclo")
     
-    # Fila 1: Venta y Recibido neto
-    col1, col2 = st.columns(2)
-    col1.metric("Venta (VES)", f"{monto_bruto:,.3f}")
-    col2.metric("Recibes Neto", f"{recibes_neto:,.3f}")
+    # Sección 1: Venta
+    st.subheader("⬇️ Etapa: Venta (USDT a VES)")
+    c1, c2 = st.columns(2)
+    c1.metric("Monto Bruto", f"{monto_bruto:,.3f} VES")
+    c2.metric("Recibes (Neto)", f"{recibes_neto:,.3f} VES")
     
-    # Fila 2: Comparativa de USDT
-    col3, col4 = st.columns(2)
-    col3.metric("USDT Inicial", f"{cantidad_usdt:,.3f}")
-    col4.metric("USDT Final", f"{usdt_recuperados:,.3f}")
+    # Sección 2: Recompra
+    st.subheader("⬆️ Etapa: Recompra (VES a USDT)")
+    c3, c4 = st.columns(2)
+    c3.metric("Usas para comprar", f"{recibes_neto:,.3f} VES")
+    c4.metric("USDT obtenidos", f"{usdt_final:,.3f} USDT")
     
-    st.markdown("---")
-    st.subheader("🚀 Ganancia Neta del Ciclo")
+    st.divider()
     
-    if ganancia_neta_usdt > 0:
-        st.success(f"### Has ganado: +{ganancia_neta_usdt:,.3f} USDT")
+    if ganancia > 0:
+        st.success(f"### Ganancia Neta: +{ganancia:,.3f} USDT")
     else:
-        st.error(f"### Resultado: {ganancia_neta_usdt:,.3f} USDT (Pérdida)")
+        st.error(f"### Ganancia Neta: {ganancia:,.3f} USDT")
     
     st.caption(f"Comisión aplicada: {comision_final*100:.3f}%")
 else:
-    st.warning("Por favor, completa los campos con valores mayores a cero para ver el resultado.")
+    st.warning("Completa los valores para calcular.")
