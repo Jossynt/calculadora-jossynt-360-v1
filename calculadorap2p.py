@@ -1,6 +1,14 @@
 import streamlit as st
 
-st.set_page_config(page_title="Calculadora P2P", page_icon="💰")
+# Configuración de página
+st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="centered")
+
+# Estilo para reducir espacios en celular
+st.markdown("""
+    <style>
+    .block-container { padding-top: 1rem; padding-bottom: 1rem; }
+    </style>
+""", unsafe_allow_html=True)
 
 st.title("💰 Calculadora P2P")
 st.subheader("Simula tu operación como maker")
@@ -24,7 +32,6 @@ tasa_compra = st.number_input("Tasa de compra (recompra)", min_value=0.0, value=
 descuento = niveles[nivel]
 comision_final = tarifa_base * (1 - descuento)
 
-# Validación: Solo calcular si hay datos válidos
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     monto_bruto = cantidad_usdt * tasa_venta
     comision_dinero = monto_bruto * comision_final
@@ -33,13 +40,19 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     usdt_recuperados = recibes_neto / tasa_compra
     ganancia_neta_usdt = usdt_recuperados - cantidad_usdt
 
-    # Interfaz de resultados con 3 decimales (.3f)
+    # Interfaz de resultados
     st.divider()
     st.subheader("📊 Resultado del Ciclo")
     
+    # Fila 1: Venta y Recibido neto
     col1, col2 = st.columns(2)
-    col1.metric("Recibes en VES", f"{recibes_neto:,.3f} VES")
-    col2.metric("USDT Recuperados", f"{usdt_recuperados:,.3f} USDT")
+    col1.metric("Venta (VES)", f"{monto_bruto:,.3f}")
+    col2.metric("Recibes Neto", f"{recibes_neto:,.3f}")
+    
+    # Fila 2: Comparativa de USDT
+    col3, col4 = st.columns(2)
+    col3.metric("USDT Inicial", f"{cantidad_usdt:,.3f}")
+    col4.metric("USDT Final", f"{usdt_recuperados:,.3f}")
     
     st.markdown("---")
     st.subheader("🚀 Ganancia Neta del Ciclo")
