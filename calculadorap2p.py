@@ -32,13 +32,7 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     ves_tras_comision_venta = bruto_venta * (1 - comision)
     
     # --- ETAPA 2: RECOMPRA (VES -> USDT) ---
-    # 1. Monto que recibiste de la venta
-    ves_inicial_recompra = ves_tras_comision_venta
-    
-    # 2. Aplicamos la comisión AHORA a los bolívares para la recompra
-    ves_neto_para_recompra = ves_inicial_recompra * (1 - comision)
-    
-    # 3. Calculamos los USDT finales
+    ves_neto_para_recompra = ves_tras_comision_venta * (1 - comision)
     usdt_final_neto = ves_neto_para_recompra / tasa_compra
     
     ganancia = usdt_final_neto - cantidad_usdt
@@ -47,12 +41,12 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     
     st.subheader("⬇️ Etapa 1: Venta (USDT a VES)")
     c1, c2 = st.columns(2)
-    c1.metric("Bruto Venta", f"{bruto_venta:,.2f}")
+    # Etiquetas solicitadas
+    c1.metric("VES obtenidos", f"{bruto_venta:,.2f}") 
     c2.metric("VES tras comisiones", f"{ves_tras_comision_venta:,.2f}")
     
     st.subheader("⬆️ Etapa 2: Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
-    # Aquí restamos la comisión a los VES para la recompra
     c3.metric("VES para recompra tras com.", f"{ves_neto_para_recompra:,.2f}")
     c4.metric("USDT Final Neto", f"{usdt_final_neto:,.3f}")
     
