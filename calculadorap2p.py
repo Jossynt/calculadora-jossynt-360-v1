@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="centered")
@@ -23,32 +22,35 @@ descuento = niveles[nivel]
 comision_final = 0.0025 * (1 - descuento)
 
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
-    # Cálculos
+    # 1. Venta: USDT -> VES
     bruto_venta = cantidad_usdt * tasa_venta
-    neto_venta = bruto_venta * (1 - comision_final)
+    neto_venta = bruto_venta * (1 - comision_final) # Comisión aplicada aquí
     
-    bruto_recompra_usdt = neto_venta / tasa_compra
-    neto_recompra_usdt = bruto_recompra_usdt * (1 - comision_final)
+    # 2. Recompra: VES -> USDT
+    # El monto que tienes para comprar es el neto_venta
+    # Pero al comprar, Binance vuelve a cobrar la comisión sobre el monto total
+    usdt_brutos_compra = neto_venta / tasa_compra
+    neto_usdt_final = usdt_brutos_compra * (1 - comision_final) # Comisión aplicada aquí también
     
-    ganancia = neto_recompra_usdt - cantidad_usdt
+    ganancia = neto_usdt_final - cantidad_usdt
 
     st.divider()
     
     # Sección Venta
     st.subheader("⬇️ Venta (USDT a VES)")
     c1, c2 = st.columns(2)
-    c1.metric("Bruto (Sin com.)", f"{bruto_venta:,.2f}")
+    c1.metric("Bruto", f"{bruto_venta:,.2f}")
     c2.metric("VES tras comisiones", f"{neto_venta:,.2f}")
     
     # Sección Recompra
     st.subheader("⬆️ Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
     c3.metric("VES para recompra", f"{neto_venta:,.2f}")
-    c4.metric("USDT final neto", f"{neto_recompra_usdt:,.3f}")
+    c4.metric("USDT final neto", f"{neto_usdt_final:,.3f}")
     
     st.divider()
     
     st.success(f"### Ganancia Neta: {'+' if ganancia > 0 else ''}{ganancia:,.3f} USDT")
-    st.caption(f"Comisión aplicada: {comision_final*100:.3f}%")
+    st.caption(f"Comisión aplicada: {comision_final*100:.3f}% por operación.")
 else:
     st.warning("Completa los valores para calcular.")
