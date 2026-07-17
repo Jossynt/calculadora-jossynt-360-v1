@@ -2,7 +2,6 @@ import streamlit as st
 
 st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="centered")
 
-# CSS para hacer los números más grandes y llamativos
 st.markdown("""
     <style>
     [data-testid="stMetricValue"] { font-size: 26px !important; font-weight: bold !important; color: #ffffff !important; }
@@ -13,7 +12,6 @@ st.markdown("""
 
 st.title("💰 Calculadora P2P Pro")
 
-# Niveles y comisiones reales
 niveles_info = {
     "Sin verif.": 0.0025, 
     "Bronce": 0.0020, 
@@ -34,11 +32,9 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     ves_tras_comision_venta = bruto_venta * (1 - comision_porcentaje)
     
     # --- CICLO 2: RECOMPRA (VES -> USDT) ---
-    # Usamos el neto anterior como base, y le aplicamos la comisión de compra
-    ves_para_recompra_neto = ves_tras_comision_venta # Este es el monto real post-comisión 1
-    
-    # Calculamos cuántos USDT recibes aplicando la comisión sobre el monto de compra
-    usdt_obtenidos_bruto = ves_para_recompra_neto / tasa_compra
+    # 1. Calculamos cuántos USDT recibes SIN comisión de compra
+    usdt_obtenidos_bruto = ves_tras_comision_venta / tasa_compra
+    # 2. Aplicamos la comisión de compra a esos USDT obtenidos
     usdt_final_neto = usdt_obtenidos_bruto * (1 - comision_porcentaje)
     
     ganancia = usdt_final_neto - cantidad_usdt
@@ -54,17 +50,17 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     # Sección Recompra
     st.subheader("⬆️ Etapa 2: Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
-    c3.metric("VES para recompra", f"{ves_para_recompra_neto:,.2f}")
+    # Aquí mostramos el monto de VES, y el cálculo final tras descontar la 2da comisión
+    c3.metric("VES para recompra", f"{ves_tras_comision_venta:,.2f}")
     c4.metric("USDT Final Neto", f"{usdt_final_neto:,.3f}")
     
     st.divider()
     
-    # Resultado Final
     if ganancia >= 0:
         st.success(f"### Ganancia Neta Final: +{ganancia:,.3f} USDT")
     else:
         st.error(f"### Ganancia Neta Final: {ganancia:,.3f} USDT")
     
-    st.caption(f"Comisión aplicada por ciclo: {comision_porcentaje*100:.3f}%")
+    st.caption(f"Se aplicó comisión del {comision_porcentaje*100:.3f}% en la Venta y nuevamente en la Recompra.")
 else:
     st.warning("Completa los valores para calcular.")
