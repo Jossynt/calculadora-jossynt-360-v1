@@ -5,6 +5,7 @@ st.set_page_config(page_title="Calculadora P2P", page_icon="💰", layout="cente
 st.markdown("""
     <style>
     .block-container { padding-top: 1rem; padding-bottom: 1rem; }
+    [data-testid="stMetricValue"] { font-size: 20px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -21,40 +22,33 @@ descuento = niveles[nivel]
 comision_final = 0.0025 * (1 - descuento)
 
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
-    # Etapa 1: Venta (USDT a VES)
-    monto_bruto = cantidad_usdt * tasa_venta
-    comision_venta = monto_bruto * comision_final
-    recibes_neto = monto_bruto - comision_venta
+    # Cálculos Venta
+    bruto_venta = cantidad_usdt * tasa_venta
+    neto_venta = bruto_venta * (1 - comision_final)
     
-    # Etapa 2: Recompra (VES a USDT)
-    # Convertimos los bolívares netos a USDT y restamos la comisión de compra
-    usdt_brutos = recibes_neto / tasa_compra
-    comision_recompra_usdt = usdt_brutos * comision_final
-    usdt_final = usdt_brutos - comision_recompra_usdt
+    # Cálculos Recompra
+    bruto_recompra_usdt = neto_venta / tasa_compra
+    neto_recompra_usdt = bruto_recompra_usdt * (1 - comision_final)
     
-    ganancia = usdt_final - cantidad_usdt
+    ganancia = neto_recompra_usdt - cantidad_usdt
 
     st.divider()
     
-    # Sección 1: Venta
-    st.subheader("⬇️ Etapa: Venta (USDT a VES)")
+    # Sección Venta
+    st.subheader("⬇️ Venta (USDT a VES)")
     c1, c2 = st.columns(2)
-    c1.metric("Monto Bruto", f"{monto_bruto:,.3f} VES")
-    c2.metric("Recibes (Neto)", f"{recibes_neto:,.3f} VES")
+    c1.metric("Bruto", f"{bruto_venta:,.2f}")
+    c2.metric("Neto", f"{neto_venta:,.2f}")
     
-    # Sección 2: Recompra
-    st.subheader("⬆️ Etapa: Recompra (VES a USDT)")
+    # Sección Recompra
+    st.subheader("⬆️ Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
-    c3.metric("Usas para comprar", f"{recibes_neto:,.3f} VES")
-    c4.metric("USDT obtenidos", f"{usdt_final:,.3f} USDT")
+    c3.metric("USDT Bruto", f"{bruto_recompra_usdt:,.3f}")
+    c4.metric("USDT Neto", f"{neto_recompra_usdt:,.3f}")
     
     st.divider()
     
-    if ganancia > 0:
-        st.success(f"### Ganancia Neta: +{ganancia:,.3f} USDT")
-    else:
-        st.error(f"### Ganancia Neta: {ganancia:,.3f} USDT")
-    
-    st.caption(f"Comisión aplicada en ambos pasos: {comision_final*100:.3f}%")
+    st.success(f"### Ganancia Neta: {'+' if ganancia > 0 else ''}{ganancia:,.3f} USDT")
+    st.caption(f"Comisión aplicada: {comision_final*100:.3f}%")
 else:
     st.warning("Completa los valores para calcular.")
