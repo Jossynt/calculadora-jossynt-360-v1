@@ -21,13 +21,17 @@ descuento = niveles[nivel]
 comision_final = 0.0025 * (1 - descuento)
 
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
-    # Etapa 1: Venta
+    # Etapa 1: Venta (USDT a VES)
     monto_bruto = cantidad_usdt * tasa_venta
-    comision_dinero = monto_bruto * comision_final
-    recibes_neto = monto_bruto - comision_dinero
+    comision_venta = monto_bruto * comision_final
+    recibes_neto = monto_bruto - comision_venta
     
-    # Etapa 2: Recompra
-    usdt_final = recibes_neto / tasa_compra
+    # Etapa 2: Recompra (VES a USDT)
+    # Convertimos los bolívares netos a USDT y restamos la comisión de compra
+    usdt_brutos = recibes_neto / tasa_compra
+    comision_recompra_usdt = usdt_brutos * comision_final
+    usdt_final = usdt_brutos - comision_recompra_usdt
+    
     ganancia = usdt_final - cantidad_usdt
 
     st.divider()
@@ -51,6 +55,6 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     else:
         st.error(f"### Ganancia Neta: {ganancia:,.3f} USDT")
     
-    st.caption(f"Comisión aplicada: {comision_final*100:.3f}%")
+    st.caption(f"Comisión aplicada en ambos pasos: {comision_final*100:.3f}%")
 else:
     st.warning("Completa los valores para calcular.")
