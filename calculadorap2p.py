@@ -2,7 +2,6 @@ import streamlit as st
 
 st.set_page_config(page_title="Calculadora P2P Pro", page_icon="💰", layout="centered")
 
-# CSS para números grandes y llamativos
 st.markdown("""
     <style>
     [data-testid="stMetricValue"] { font-size: 26px !important; font-weight: bold !important; color: #ffffff !important; }
@@ -13,7 +12,6 @@ st.markdown("""
 
 st.title("💰 Calculadora P2P Pro")
 
-# Comisiones ajustadas a porcentaje decimal (ej: 0.20% = 0.0020)
 niveles_info = {
     "Sin verif.": 0.0025, 
     "Bronce": 0.0020, 
@@ -31,15 +29,17 @@ comision = niveles_info[nivel]
 if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     # --- ETAPA 1: VENTA (USDT -> VES) ---
     bruto_venta = cantidad_usdt * tasa_venta
-    ves_tras_comision = bruto_venta * (1 - comision)
+    ves_tras_comision_venta = bruto_venta * (1 - comision)
     
     # --- ETAPA 2: RECOMPRA (VES -> USDT) ---
-    # 1. Monto neto que entra a la recompra
-    ves_para_recompra = ves_tras_comision
+    # 1. Monto que recibiste de la venta
+    ves_inicial_recompra = ves_tras_comision_venta
     
-    # 2. Aplicamos la comisión NUEVAMENTE sobre este monto al recomprar
-    usdt_obtenidos_bruto = ves_para_recompra / tasa_compra
-    usdt_final_neto = usdt_obtenidos_bruto * (1 - comision)
+    # 2. Aplicamos la comisión AHORA a los bolívares para la recompra
+    ves_neto_para_recompra = ves_inicial_recompra * (1 - comision)
+    
+    # 3. Calculamos los USDT finales
+    usdt_final_neto = ves_neto_para_recompra / tasa_compra
     
     ganancia = usdt_final_neto - cantidad_usdt
 
@@ -48,12 +48,12 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     st.subheader("⬇️ Etapa 1: Venta (USDT a VES)")
     c1, c2 = st.columns(2)
     c1.metric("Bruto Venta", f"{bruto_venta:,.2f}")
-    c2.metric("VES tras comisiones", f"{ves_tras_comision:,.2f}")
+    c2.metric("VES tras comisiones", f"{ves_tras_comision_venta:,.2f}")
     
     st.subheader("⬆️ Etapa 2: Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
-    # Mostramos el monto neto post-comisión 1, y luego el neto post-comisión 2
-    c3.metric("VES para recompra", f"{ves_para_recompra:,.2f}")
+    # Aquí restamos la comisión a los VES para la recompra
+    c3.metric("VES para recompra tras com.", f"{ves_neto_para_recompra:,.2f}")
     c4.metric("USDT Final Neto", f"{usdt_final_neto:,.3f}")
     
     st.divider()
@@ -63,6 +63,6 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     else:
         st.error(f"### Ganancia Neta: {ganancia:,.3f} USDT")
         
-    st.caption(f"Comisión aplicada: {comision*100:.3f}% en Venta y {comision*100:.3f}% en Recompra.")
+    st.caption(f"Comisión del {comision*100:.3f}% aplicada en cada ciclo de forma independiente.")
 else:
     st.warning("Completa los valores para calcular.")
