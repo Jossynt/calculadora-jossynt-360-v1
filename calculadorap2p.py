@@ -41,13 +41,12 @@ if cantidad_usdt > 0 and tasa_venta > 0 and tasa_compra > 0:
     
     st.subheader("⬇️ Etapa 1: Venta (USDT a VES)")
     c1, c2 = st.columns(2)
-    # Etapa 1 ajustada a tu requerimiento
     c1.metric("VES tras comisiones", f"{ves_tras_comision_venta:,.2f}")
-    c2.metric("USDT vendido tras com.", f"{cantidad_usdt * (1 - comision):,.3f}")
+    # Cambiado a USDT vendido (la cantidad original que pusiste)
+    c2.metric("USDT vendido", f"{cantidad_usdt:,.3f}")
     
     st.subheader("⬆️ Etapa 2: Recompra (VES a USDT)")
     c3, c4 = st.columns(2)
-    # Etapa 2 como ya la teníamos
     c3.metric("VES para recompra tras com.", f"{ves_neto_para_recompra:,.2f}")
     c4.metric("USDT Final Neto", f"{usdt_final_neto:,.3f}")
     
